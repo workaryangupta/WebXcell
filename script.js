@@ -1,3 +1,22 @@
+let defaultProperties = {
+  text: "",
+  "font-weight": "",
+  "font-style": "",
+  "text-decoration": "",
+  "text-align": "left",
+  "background-color": 'white',
+  "color": "black",
+  "font-family": "arial",
+  "font-size": "12"
+}
+
+let cellData = {    // this obj will store data of changed cells
+  "Sheet1": {}
+}
+
+let selectedSheet = "Sheet1"
+let totalSheets = 1;
+
 $(document).ready(function () {
 
   // logic for naming rows and cols
@@ -41,17 +60,13 @@ $(document).ready(function () {
     $(".input-cell-container").append(row);
   }
 
-  // align waale icons ke liye select wala logic                purana logic
+  // align waale icons ke liye select wala logic                
   $(".align-icon").click(function () {
-    let aicons = this.parentNode.querySelectorAll("[selected='true']");
-    for (let i = 0; i < aicons.length; i++) {
-      aicons[i].setAttribute("selected", false);
-    }
-
-    this.setAttribute("selected", true);
+    $(".align-icon.selected").removeClass("selected")
+    $(this).addClass("selected")
   });
 
-  // text style ke icons ke liye select wala logic              implemented w new logic
+  // text style ke icons ke liye select wala logic              
   $(".style-icon").click(function () {
     $(this).toggleClass("selected");
   });
@@ -96,9 +111,7 @@ $(document).ready(function () {
           $(`#row-${rowId}-col-${colId+1}`).addClass("left-cell-selected")
         }
       }
-
-      $(this).addClass("selected");
-
+      
     } else {                  // single cell select
       $(".input-cell.selected").removeClass("selected");
       $(".input-cell.top-cell-selected").removeClass("top-cell-selected");
@@ -106,10 +119,28 @@ $(document).ready(function () {
       $(".input-cell.right-cell-selected").removeClass("right-cell-selected");
       $(".input-cell.bottom-cell-selected").removeClass("bottom-cell-selected");
 
-
-      $(this).addClass("selected");
     }
+    $(this).addClass("selected");
+    changeHeader(this);
   });
+
+  // function for two way binding
+  function changeHeader(ele) {
+    let [rowId, colId] = getRowCol(ele);
+
+    let cellInfo = defaultProperties      // if doesnt exist, obv equal to def prop
+    if (cellData[selectedSheet][rowId] && cellData[selectedSheet][rowId][colId]){  // both r,c exist
+      cellInfo = cellData[selectedSheet][rowId][colId]
+    }
+
+    cellInfo["font-weight"] ? $(".icon-bold").addClass("selected") : $(".icon-bold").removeClass("selected")
+    cellInfo["font-style"] ? $(".icon-italic").addClass("selected") : $(".icon-italic").removeClass("selected")
+    cellInfo["text-decoration"] ? $(".icon-underline").addClass("selected") : $(".icon-underline").removeClass("selected")
+    let alignment = cellInfo["text-align"]
+    $(".align-icon.selected").removeClass("selected")
+    $(".icon-align-" + alignment).addClass("selected")
+
+  }
 
   // logic for writing in cells , double click
   $(".input-cell").dblclick(function () {
@@ -118,7 +149,7 @@ $(document).ready(function () {
     $(this).attr("contentEditable", "true");
     $(this).focus();
   });
-
+  // makes non selected cells not content-editable
   $(".input-cell").blur(function(){
     $(".input-cell.selected").attr("contentEditable", "false");
   })
@@ -129,7 +160,7 @@ $(document).ready(function () {
     $(".row-name-container").scrollTop(this.scrollTop);     // scrollLeft for x axis scroll
   })
 
-
+  // a function to get row and col of an input cell
   function getRowCol(ele) {
     let idArr = $(ele).attr("id").split("-");
     let rowId = parseInt(idArr[1]);
@@ -137,35 +168,98 @@ $(document).ready(function () {
 
     return [rowId, colId];
   }
+
 // code for bold, italic and underline
-  function updateCell(property, value) {
+  function updateCell(property, value, defaultPossible) { 
     $(".input-cell.selected").each(function(){
+    // update in UI
       $(this).css(property, value);
-    })
+      
+    // update in cell Data  (storing the data in ram) (storing system)
+      let [rowId, colId] = getRowCol(this);
+      if (cellData[selectedSheet][rowId]) {       // checks if row exist
+
+        if (cellData[selectedSheet][rowId][colId]) {  // checks if col exist
+          // if exists, we will update it
+          cellData[selectedSheet][rowId][colId][property] = value;
+        } else {      // if doesnot exist, we will create cell object then update prop.
+          cellData[selectedSheet][rowId][colId] = {...defaultProperties}
+          cellData[selectedSheet][rowId][colId][property] = value;
+        }
+      
+      } else {  // agar row hi exist nahi krti, def col doesnot exist
+        cellData[selectedSheet][rowId] = {}               // create row
+        cellData[selectedSheet][rowId][colId] = {...defaultProperties}   // create col
+        cellData[selectedSheet][rowId][colId][property] = value;    // update prop 
+      }
+
+      // now if updated cell data == defeault properties, we will delete this cell
+      if (defaultPossible && JSON.stringify(cellData[selectedSheet][rowId][colId]) === JSON.stringify(defaultProperties)) {
+        // delete col
+        delete cellData[selectedSheet][rowId][colId]
+        // now if row khaali ho jaye, delete row also
+        if (Object.keys(cellData[selectedSheet][rowId]).length == 0) {   // row is obj so we cant use length property directly like an array, we have to use object.keys method
+          delete cellData[selectedSheet][rowId]
+        }
+      }
+      
+    })  
+    console.log(cellData); 
   }
   // BOLD
   $(".icon-bold").click(function(){
     if ($(this).hasClass("selected")){
-      updateCell("font-weight", "bold");
+      updateCell("font-weight", "bold", false);    // make it bold
     } else {
-      updateCell("font-weight", "");
+      updateCell("font-weight", "", true);        // make it unbold 
     }
   })
   // ITALIC
   $(".icon-italic").click(function(){
     if ($(this).hasClass("selected")){
-      updateCell("font-style", "italic");
+      updateCell("font-style", "italic", false);
     } else {
-      updateCell("font-style", "normal");
+      updateCell("font-style", "normal", true);
     }
   })
   // UNDERLINE
   $(".icon-underline").click(function(){
     if ($(this).hasClass("selected")){
-      updateCell("text-decoration", "underline");
+      updateCell("text-decoration", "underline", false);
     } else {
-      updateCell("text-decoration", "");
+      updateCell("text-decoration", "", true);
     }
+  })
+
+  // text-align left
+  $(".icon-align-left").click(function(){
+    if ($(this).hasClass("selected")){
+      updateCell("text-align", "left", true);
+    }
+  })
+
+  // text-align center
+  $(".icon-align-center").click(function(){
+    if ($(this).hasClass("selected")){
+      updateCell("text-align", "center", false);
+    }
+  })
+
+  // text-align right
+  $(".icon-align-right").click(function(){
+    if ($(this).hasClass("selected")){
+      updateCell("text-align", "right", false);
+    }
+  })
+
+  // font family
+  $(".font-family-selector").change(function(){
+    updateCell("font-family", this.value, true);
+  })
+
+  // font size
+  $(".font-size-selector").change(function(){
+    updateCell("font-size", parseInt(this.value), true);
   })
 
 });
