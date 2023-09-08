@@ -158,6 +158,7 @@ body {
     height: 25px;
     width: calc(100vw - 35px);
     display: flex;
+    overflow: hidden;
 }
 
 .column-name {
@@ -186,10 +187,14 @@ body {
     border-right: 1px solid lightgray;
     border-bottom: 1px solid lightgray;
     outline-color: #107c41;
+    /* display: flex;
+    align-items: center; */
+    padding-left: 4px;
+    padding-top: 3px;
 }
 
 .input-cell.selected{
-    outline: 2px solid #107c41;
+    border: 2px solid #107c41;
     background-color: #fff;
     
 }
@@ -259,4 +264,23 @@ body {
 
 .selected {
     background-color: lightgray;
+}
+
+.input-cell.top-cell-selected {
+    border-top: none;       /* bcoz top aur left ko kabhi border dia hi nahi tha*/
+}
+
+.input-cell.bottom-cell-selected {
+    border-bottom: 1px solid lightgray;  /* sirf bottom aur right cell ko border diya tha */
+}
+
+.input-cell.right-cell-selected {
+    border-right: 1px solid lightgray;
+    
+}
+
+.input-cell.left-cell-selected {
+    border-left: none;
+
+    
 }
