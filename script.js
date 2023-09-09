@@ -7,7 +7,7 @@ let defaultProperties = {
   "background-color": '#ffffff',
   "color": "#000000",
   "font-family": "arial",
-  "font-size": "12"
+  "font-size": "16"
 }
 
 let cellData = {    // this obj will store data of changed cells
@@ -16,6 +16,7 @@ let cellData = {    // this obj will store data of changed cells
 
 let selectedSheet = "Sheet1"
 let totalSheets = 1;
+let lastly_added_sheet = 1;
 
 $(document).ready(function () {
 
@@ -292,6 +293,84 @@ $(document).ready(function () {
   $(".text-color-picker").change(function(){
     updateCell("color", $(this).val())
   })
+
+
+  // empties sheet from ui and not from our data
+  function emptySheet() {     
+    let sheetInfo = cellData[selectedSheet];
+    for (let i of Object.keys(sheetInfo)) {
+      for (let j of Object.keys(sheetInfo[i])) {
+        $(`#row-${i}-col-${j}`).text("");
+        $(`#row-${i}-col-${j}`).css("background-color", "#ffffff");
+        $(`#row-${i}-col-${j}`).css("color", "#000000");
+        $(`#row-${i}-col-${j}`).css("font-weight", "");
+        $(`#row-${i}-col-${j}`).css("font-style", "");
+        $(`#row-${i}-col-${j}`).css("text-decoration", "");
+        $(`#row-${i}-col-${j}`).css("text-align", "left");
+        $(`#row-${i}-col-${j}`).css("font-family", "Arial");
+        $(`#row-${i}-col-${j}`).css("font-size", 16);
+      }
+    }
+  }
+  // loads sheet data from ram to ui (data is still there in ram as we didnt del it in the above emplt funciton)
+  function loadSheet() {     
+    let sheetInfo = cellData[selectedSheet];
+    for (let i of Object.keys(sheetInfo)) {
+      for (let j of Object.keys(sheetInfo[i])) {
+        let cellInfo = cellData[selectedSheet][i][j];
+
+        $(`#row-${i}-col-${j}`).text(cellInfo["text"]);
+        $(`#row-${i}-col-${j}`).css("background-color", cellInfo["background-color"]);
+        $(`#row-${i}-col-${j}`).css("color", cellInfo["color"]);
+        $(`#row-${i}-col-${j}`).css("font-weight", cellInfo["font-weight"]);
+        $(`#row-${i}-col-${j}`).css("font-style", cellInfo["font-style"]);
+        $(`#row-${i}-col-${j}`).css("text-decoration", cellInfo["text-decoration"]);
+        $(`#row-${i}-col-${j}`).css("text-align", cellInfo["text-align"]);
+        $(`#row-${i}-col-${j}`).css("font-family",cellInfo["font-family"]);
+        $(`#row-${i}-col-${j}`).css("font-size", parseInt(cellInfo["font-size"]));
+
+      }
+    }
+  }
+
+// add new sheet by clicking (+) icon and make it new selected sheet
+  $(".icon-add").click(function(){
+    emptySheet();
+  // add to ram
+    let sheetName = "Sheet" + (lastly_added_sheet+1);
+    cellData[sheetName] = {};
+    totalSheets += 1;
+    lastly_added_sheet += 1;
+    selectedSheet = sheetName;
+
+  // add to ui
+    $(".sheet-tab.selected").removeClass("selected")
+    $(".sheet-tab-container").append(`<div class="sheet-tab selected">${sheetName}</div>`);
+
+  //  nayi sheet add hone pe uspe event listener lagaya
+    $(".sheet-tab.selected").click(function() {
+      if (!$(this).hasClass("selected")) {
+        selectSheet(this);
+      }
+    })
+  })
+
+// logic to click and go to non selected sheets   
+  $(".sheet-tab").click(function() {
+    if (!$(this).hasClass("selected")) {
+      selectSheet(this);
+    }
+  })
+
+  function selectSheet(ele) {
+    $(".sheet-tab.selected").removeClass("selected");
+    $(ele).addClass("selected")
+    emptySheet();
+
+    selectedSheet = $(ele).text();
+    loadSheet();
+  }
+
 
 
 });

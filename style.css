@@ -191,7 +191,7 @@ body {
     align-items: center; */
     padding-left: 4px;
     padding-top: 3px;
-    font-size: 14;
+    font-size: 16px;
     font-family: "Arial";
 }
 
@@ -248,11 +248,11 @@ body {
     border: 1px solid lightgray;
     width: calc(100vw - 140px);
     padding-bottom: 0px;
+    display: flex;
 }
 
 .sheet-tab {
     height: 100%;
-    border-bottom: 4px solid #107c41;
     padding-left: 15px;
     padding-right: 15px;
     display: flex;
@@ -261,8 +261,18 @@ body {
     justify-content: center;
     font-weight:600;
     border-right: 1px solid lightgray;
+    cursor: pointer;
 }
 
+.sheet-tab.selected {
+    border-bottom: 4px solid #107c41;
+    background-color: white;
+}
+
+.sheet-tab.selected:hover {
+    cursor: default ;
+}
+ 
 .align-icon[selected=true ] {
     background-color: lightgray;
 }
