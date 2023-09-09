@@ -191,12 +191,18 @@ body {
     align-items: center; */
     padding-left: 4px;
     padding-top: 3px;
+    font-size: 14;
+    font-family: "Arial";
 }
 
 .input-cell.selected{
     border: 2px solid #107c41;
     background-color: #fff;
     
+}
+
+.font-family-selector {
+    font-family: Arial, Helvetica, sans-serif; 
 }
 
 .sheet-bar {
@@ -281,6 +287,27 @@ body {
 
 .input-cell.left-cell-selected {
     border-left: none;
-
     
 }
+
+.color-picker {
+    position: absolute;
+    width: 26px;
+    height: 12px;
+    border: none;
+    padding: 0;
+    top: 30px;
+    left: 9px;
+    cursor: pointer;
+    background-color:rgb(238, 237, 237);
+    
+}
+.color-picker:hover{
+    background-color: lightgray ;
+}
+
+.icon-color-fill, .icon-color-text {
+    position: relative;
+}
+
+

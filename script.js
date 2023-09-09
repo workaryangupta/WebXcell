@@ -4,8 +4,8 @@ let defaultProperties = {
   "font-style": "",
   "text-decoration": "",
   "text-align": "left",
-  "background-color": 'white',
-  "color": "black",
+  "background-color": '#ffffff',
+  "color": "#000000",
   "font-family": "arial",
   "font-size": "12"
 }
@@ -132,13 +132,22 @@ $(document).ready(function () {
     if (cellData[selectedSheet][rowId] && cellData[selectedSheet][rowId][colId]){  // both r,c exist
       cellInfo = cellData[selectedSheet][rowId][colId]
     }
-
+    
+    // font styles
     cellInfo["font-weight"] ? $(".icon-bold").addClass("selected") : $(".icon-bold").removeClass("selected")
     cellInfo["font-style"] ? $(".icon-italic").addClass("selected") : $(".icon-italic").removeClass("selected")
     cellInfo["text-decoration"] ? $(".icon-underline").addClass("selected") : $(".icon-underline").removeClass("selected")
+    // text align
     let alignment = cellInfo["text-align"]
     $(".align-icon.selected").removeClass("selected")
     $(".icon-align-" + alignment).addClass("selected")
+    // color picker
+    $(".background-color-picker").val(cellInfo["background-color"])
+    $(".text-color-picker").val(cellInfo["color"])
+    // font family and font size
+    $(".font-family-selector").val(cellInfo["font-family"])
+    $(".font-family-selector").css("font-family", cellInfo["font-family"])
+    $(".font-size-selector").val(cellInfo["font-size"])
 
   }
 
@@ -149,9 +158,10 @@ $(document).ready(function () {
     $(this).attr("contentEditable", "true");
     $(this).focus();
   });
-  // makes non selected cells not content-editable
+  // makes non selected cells not content-editable and also adds tex to ram storage
   $(".input-cell").blur(function(){
     $(".input-cell.selected").attr("contentEditable", "false");
+    updateCell("text", $(this).text())
   })
   
   // scroll rows and cols 
@@ -169,7 +179,7 @@ $(document).ready(function () {
     return [rowId, colId];
   }
 
-// code for bold, italic and underline
+// code for updating the cell
   function updateCell(property, value, defaultPossible) { 
     $(".input-cell.selected").each(function(){
     // update in UI
@@ -255,11 +265,33 @@ $(document).ready(function () {
   // font family
   $(".font-family-selector").change(function(){
     updateCell("font-family", this.value, true);
+    $(".font-family-selector").css("font-family", this.value)
+
   })
 
   // font size
   $(".font-size-selector").change(function(){
     updateCell("font-size", parseInt(this.value), true);
   })
+
+// work for bg color and text color
+  $(".color-fill-icon").click(function(){
+    $(".background-color-picker").click()
+  })
+
+  $(".color-fill-text").click(function(){
+    $(".text-color-picker").click()
+  })
+
+  // bg color change
+  $(".background-color-picker").change(function(){
+    updateCell("background-color", $(this).val())
+  })
+
+  // text color change
+  $(".text-color-picker").change(function(){
+    updateCell("color", $(this).val())
+  })
+
 
 });

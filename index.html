@@ -24,7 +24,7 @@
             <div class="material-icons menu-icon icon-copy">content_copy</div>
             <div class="material-icons menu-icon icon-paste">content_paste</div>
             <select class="selector font-family-selector">
-                <option value="arial"> Arial </option>
+                <option value="arial" selected> Arial </option>
                 <option value="calibri"> Calibri </option>
                 <option value="Comic Sans MS"> Comic Sans MS </option>
                 <option value="impact"> Impact </option>
@@ -41,7 +41,7 @@
             <select class="selector font-size-selector">
                 <option value="8"> 8 </option>
                 <option value="10"> 10 </option>
-                <option value="12"> 12 </option>
+                <option value="12" selected> 12 </option>
                 <option value="14"> 14 </option>
                 <option value="16"> 16 </option>
                 <option value="18"> 18 </option>
@@ -57,8 +57,14 @@
             <div class="material-icons menu-icon icon-align-left align-icon selected">format_align_left</div>
             <div class="material-icons menu-icon icon-align-center align-icon" selected="false">format_align_center</div>
             <div class="material-icons menu-icon icon-align-right align-icon" selected="false">format_align_right</div>
-            <div class="material-icons menu-icon icon-color-fill">format_color_fill</div>
-            <div class="material-icons menu-icon icon-color-text">format_color_text</div>
+            <div class="menu-icon icon-color-fill">
+                <input class="color-picker background-color-picker" type="color" value="#ffffff">
+                <div class="material-icons color-fill-icon">format_color_fill</div>
+            </div>
+            <div class="menu-icon icon-color-text">
+                <input class="color-picker text-color-picker" type="color">
+                <div class="material-icons color-fill-text">format_color_text</div>
+            </div>
         </div>
         <div class="formula-bar">
             <div class="formula-editor selected-cell"></div>
