@@ -130,7 +130,7 @@ $(document).ready(function () {
 
       let [rowId, colId] = getRowCol(this);
       let colCode = getColCode(this);
-      $(".formula-editor").text(colCode + " " + rowId);
+      $(".formula-editor.selected-cell").text(colCode + " " + rowId);
 
     }
     $(this).addClass("selected");
@@ -181,6 +181,7 @@ $(document).ready(function () {
   $(".input-cell-container").scroll(function(){
     $(".column-name-container").scrollLeft(this.scrollLeft);  // scrollLeft for x axis scroll
     $(".row-name-container").scrollTop(this.scrollTop);     // scrollLeft for x axis scroll
+    // $(".sheet-bar").scrollLeft(this.scrollLeft);
   })
 
   // a function to get row and col of an input cell
