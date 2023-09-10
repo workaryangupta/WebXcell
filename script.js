@@ -1,3 +1,11 @@
+// Note for jquery:
+//   .style(in js) => .css(in jquery)
+//   .innerHTMl(in js) => .text()
+
+
+// for i of something (for objects)
+// for i in something (for iterables-arrayas, etc)
+
 let defaultProperties = {
   text: "",
   "font-weight": "",
@@ -120,6 +128,10 @@ $(document).ready(function () {
       $(".input-cell.right-cell-selected").removeClass("right-cell-selected");
       $(".input-cell.bottom-cell-selected").removeClass("bottom-cell-selected");
 
+      let [rowId, colId] = getRowCol(this);
+      let colCode = getColCode(this);
+      $(".formula-editor").text(colCode + " " + rowId);
+
     }
     $(this).addClass("selected");
     changeHeader(this);
@@ -178,6 +190,11 @@ $(document).ready(function () {
     let colId = parseInt(idArr[3]);
 
     return [rowId, colId];
+  }
+  // function to get column code
+  function getColCode(ele) {
+    let colCode = $(ele).attr("data").split("-")[1];
+    return colCode;
   }
 
 // code for updating the cell
@@ -348,19 +365,105 @@ $(document).ready(function () {
     $(".sheet-tab-container").append(`<div class="sheet-tab selected">${sheetName}</div>`);
 
   //  nayi sheet add hone pe uspe event listener lagaya
-    $(".sheet-tab.selected").click(function() {
+    addSheetEvents();
+  })
+
+// logic for sheet event -> 1. Click to select sheet. 2. Rightclick contextmenu
+  function addSheetEvents() {
+    // click
+    $(".sheet-tab").click(function() {
       if (!$(this).hasClass("selected")) {
         selectSheet(this);
       }
     })
+
+    // contextmenu
+    $(".sheet-tab.selected").contextmenu(function(e) {
+      e.preventDefault();
+      // ============================================================================
+      selectSheet(this)
+
+      // $(".sheet-tab.selected").removeClass("selected")
+      // $(this).addClass("selected")
+      // selectedSheet = $(this).text();
+
+      // ===========================================================================
+      
+      // display our self created sheets modal when right click
+      $(".sheet-options-modal").css("display", "inline");
+      $(".sheet-options-modal").css("left", e.pageX + "px");
+
+      // sheet contextmenu pe rename dabaane pe -> rename wala modal show
+      $(".sheet-rename").click(function(){
+        $(".sheet-rename-modal").css("display", "inline");
+
+
+        // Cancel dabaane pe remove modal
+        $(".cancel-button").click(function() {
+          $(".sheet-rename-modal").css("display", "none");
+        })
+
+        // Rename dabaane pe rename sheet in 1.UI and 2.cellData
+        $(".submit-button").click(function(){
+          // change in ui
+          let newSheetName = $(".new-sheet-name").val();
+          $(".sheet-tab.selected").text(newSheetName);
+
+          // change in ram
+          let newCellData = {}
+          for (let key in cellData) {
+            if (key != selectedSheet) {
+              newCellData[key] = cellData[key]
+            } else {
+              newCellData[newSheetName] = cellData[key]
+            }
+          }
+          cellData = newCellData
+          selectedSheet = newSheetName
+          $(".sheet-rename-modal").css("display", "none"); 
+          console.log(cellData);
+        })
+      })
+      
+      // sheet contextmenu pe DELETE dabaane pe -> DELETE SHEET DIRECTLY
+      $(".sheet-delete").click(function(){
+        // CONDITIONS : 1. no of sheets > 1; 2. After deletion, make prev sheet = selectedSheet, and if prev sheet doesnot exist, make next sheet = selectedSheet
+        if (Object.keys(cellData).length > 1) {
+          let currSheetName = selectedSheet
+          let currSheet = $(".sheet-tab.selected")
+          let curr_sheet_idx = Object.keys(cellData).indexOf(selectedSheet);
+ 
+          // slect next/prev sheet
+          if (curr_sheet_idx == 0) {
+            selectSheet(currSheet.next())
+          } else {
+            selectSheet(currSheet.prev())
+          }
+          // remove from cell data
+          delete cellData[currSheetName]
+
+          // remove from ui
+          currSheet.remove()
+
+          console.log(cellData)
+          console.log(selectedSheet)
+
+
+        } else {
+          alert("Sorry! Can not delete the only sheet left!!");
+        }
+      })
+    })
+  }
+  // to remove modals when clicking somewhere else
+  $(".container").click(function() {
+    $(".sheet-options-modal").css("display", "none");
+    // $(".sheet-rename-modal").css("display", "none");
+
   })
 
-// logic to click and go to non selected sheets   
-  $(".sheet-tab").click(function() {
-    if (!$(this).hasClass("selected")) {
-      selectSheet(this);
-    }
-  })
+  // for first sheet
+  addSheetEvents();
 
   function selectSheet(ele) {
     $(".sheet-tab.selected").removeClass("selected");
@@ -371,6 +474,53 @@ $(document).ready(function () {
     loadSheet();
   }
 
+  // COPY, PASTE, CUT
+  let selectedCells = []
+  let cut = false
 
+  $(".icon-copy").click(function() {
+    $(".input-cell.selected").each(function(){
+      selectedCells.push(getRowCol(this));
+    })
+    console.log(selectedCells)
+  })
+
+  $(".icon-cut").click(function(){
+    $(".input-cell.selected").each(function(){
+      selectedCells.push(getRowCol(this));
+    })
+    cut = true;
+
+  })
+
+  $(".icon-paste").click(function(){
+    emptySheet();
+
+    let [rowId, colId] = getRowCol($(".input-cell.selected")[0]);
+    let rowDistance = rowId - selectedCells[0][0];
+    let colDistance = colId - selectedCells[0][1];
+    
+    for (let cell of selectedCells) {
+      let newRowId = cell[0] + rowDistance;
+      let newColId = cell[1] + colDistance;
+      if (!cellData[selectedSheet][newRowId]){
+        cellData[selectedSheet][newRowId] = {};
+      } 
+      cellData[selectedSheet][newRowId][newColId] = {...cellData[selectedSheet][cell[0]][cell[1]]};
+      if (cut) {
+        delete cellData[selectedSheet][cell[0]][cell[1]];
+        if (Object.keys(cellData[selectedSheet][cell[0]]).length == 0){
+          delete cellData[selectedSheet][cell[0]] 
+        }
+
+      }
+    }
+
+    if (cut) {
+      cut = false;
+      selectedCells = []
+    }
+    loadSheet();
+  })
 
 });
