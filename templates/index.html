@@ -5,8 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> myExcel </title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+    <link rel="stylesheet" type= "text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 
 <body>
@@ -68,6 +68,12 @@
 
             <div class="material-icons menu-icon download">file_download</div>
             <div class="material-icons menu-icon upload">upload_file</div>
+                <form method='POST' enctype='multipart/form-data'>
+                    {{form.hidden_tag()}}
+                    {{form.file()}}
+                    {{form.submit()}}
+                </form>
+            <div class="material-icons menu-icon upload-any">upload_file</div>
 
         </div>
         <div class="formula-bar">
@@ -124,7 +130,7 @@
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="script.js"></script>
-    <script src="openSave.js"></script>
+    <script src="{{ url_for('static', filename='script.js')}}"></script>
+    <script src="{{ url_for('static', filename='opensave.js')}}"></script>
 </body>
 </html>
